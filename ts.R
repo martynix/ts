@@ -102,3 +102,6 @@ plot(dveg)
 
 
 #Dekompozycja za pomocą ruchomej średniej szeregu z sezonowością
+
+#BRAKUJE DUZO
+
