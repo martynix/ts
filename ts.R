@@ -33,18 +33,18 @@ veg
 is.ts(pop)
 is.ts(veg)
 
+## Omówienie głównych cech analizowanych szeregów na podstawie poznanych typów wykresów
+
+## Wykresy punktowe
 plot(pop)
 plot(veg)
 
+
+## Wykresy sezonowe
 monthplot(pop)
 monthplot(veg)
 
 #Powyższa funkcja pochodzi z pakietu stats i przedstawia podzbiory danych dla kazdego z okresów - dla miesięcznytch szeregów, dla każdego miesiąca rysowane są odrębne szeregi czasowe zawierające wartości zaobserwowane w kolejnych latach. Ponadto wyznacznana jest średnia wartość zaznaczona poziomą linią.
-
-boxplot(pop ~ cycle(pop))
-boxplot(veg ~ cycle(veg))
-
-#Wykres typu boxplot dostarcza nam syntetycznych informacji na temat zmienności szeregów dla poszczególnych okresów. Na wykresie mamy mediany, kwartyle(brzegi pudełek), wartości minimalne i maksymalne(wąsy) oraz wartości odstające (kropki)
 
 library(forecast)
 
@@ -60,3 +60,45 @@ seasonplot(veg,
 
 #Funkcja seasonplot z pakietu forecast pozwala na zaprezentowanie danych w rozbiciu na kolejne okresy jednostkowe. Forma taka pomaga analizować i zauważać zarówno sezonowość okresów jak i odstępstwom od wzorca sezonowości w poszczególnych okresach (np. jednostkowe, nietypowe zachowanie w konkretnym roku).
 
+## Wykresy pudełkowe
+boxplot(pop ~ cycle(pop))
+boxplot(veg ~ cycle(veg))
+
+#Wykres typu boxplot dostarcza nam syntetycznych informacji na temat zmienności szeregów dla poszczególnych okresów. Na wykresie mamy mediany, kwartyle(brzegi pudełek), wartości minimalne i maksymalne(wąsy) oraz wartości odstające (kropki)
+
+## Wykresy rozrzutu dla wartości opóźnionych
+lag.plot(pop, lags=12, do.lines=FALSE)
+lag.plot(veg, lags=12, do.lines=FALSE)
+
+#Wykres rozrzutu jest podstawowym narzędziem graficznym wykorzystywanym do badania zależności dwóch zmiennych w klasycznej analizie danych. Na wykresach rozrzutu dla wartości opóźnionych przedstawiamy zależność wartości szeregu od wartości przesuniętych o opóźnienie lag - rysujemy pary (X(t), X(t-lag)) dla kolejnych chwil t. Jeżeli punkty na wykresie przedstawiają jednorodną chmurę punktów, bez jakiejkolwiek struktury, świadczy to o braku istotnej zależności czasowej pomiędzy wartościami szeregu przesuniętymi o konkretne opóźnienie.
+
+## Wykresy autokorelacji ACF
+acf(pop)
+acf(veg)
+
+## Wykresy cząstkowej korelacji PACF
+pacf(pop)
+pacf(veg)
+
+## Dekompozycja
+
+#Dekompozycja addytywna szeregu z trendem
+dpop <- decompose(pop, type = "additive")
+plot(dpop)
+
+#Dekompozycja addytywna szeregu z sezonowością
+dveg <- decompose(veg, type = "additive")
+plot(dveg)
+
+#Dekompozycja multiplikatywna szeregu z trendem
+dpop <- decompose(pop, type = "multiplicative")
+plot(dpop)
+
+#Dekompozycja multiplikatywna szeregu z sezonowością
+dveg <- decompose(veg, type = "multiplicative")
+plot(dveg)
+
+#Dekompozycja za pomocą ruchomej średniej szeregu z trendem
+
+
+#Dekompozycja za pomocą ruchomej średniej szeregu z sezonowością
