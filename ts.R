@@ -91,12 +91,12 @@ dveg <- decompose(veg, type = "additive")
 plot(dveg)
 
 #Dekompozycja multiplikatywna szeregu z trendem
-dpop <- decompose(pop, type = "multiplicative")
-plot(dpop)
+dpop1 <- decompose(pop, type = "multiplicative")
+plot(dpop1)
 
 #Dekompozycja multiplikatywna szeregu z sezonowością
-dveg <- decompose(veg, type = "multiplicative")
-plot(dveg)
+dveg1 <- decompose(veg, type = "multiplicative")
+plot(dveg1)
 
 #Dekompozycja za pomocą ruchomej średniej szeregu z trendem
 ts1ma1 <- filter(pop, sides=2, filter=rep(1/3,3))
@@ -108,16 +108,14 @@ lines(ts1ma2, col="blue", lty=2)
 lines(ts1ma3, col="green", lty=2)
 
 #Dekompozycja za pomocą ruchomej średniej szeregu z sezonowością
-ts1ma11 <- filter(veg, sides=2, filter=rep(1/3,3))
-ts1ma22 <- filter(veg, sides=2, filter=rep(1/7,7))
-ts1ma33 <- filter(veg, sides=2, filter=rep(1/11,11))
-ts1ma44 <- filter(veg, sides=2, filter=rep(1/20,20))
+ts1ma11 <- filter(veg, sides=2, filter=rep(1/11,11))
+ts1ma22 <- filter(veg, sides=2, filter=rep(1/20,20))
+ts1ma33 <- filter(veg, sides=2, filter=rep(1/25,25))
 
 plot(veg, col="black", lty=2)
 lines(ts1ma11, col="red", lty=2)
 lines(ts1ma22, col="blue", lty=2)
 lines(ts1ma33, col="green", lty=2)
-lines(ts1ma44, col="purple", lty=2)
 
 #Dekompozycja wielomianowa szeregu z trendem
 pop_poly1 <- tslm(pop~trend)
@@ -134,3 +132,28 @@ veg_poly2 <- tslm(veg ~ trend + season)
 plot(veg)
 lines(fitted(veg_poly1), col = "blue", lty = 1)
 lines(fitted(veg_poly2), col = "red", lty = 2)
+
+## Eliminacja trendu i sezonowości
+#Na szeregach powstałych po dekompozycji addytywnej
+dpop.trend <- dpop$trend
+dpop.sezonowosc <- dpop$seasonal
+dpop.indeksy <- dpop$figure
+dpop.reszty <- dpop$random
+barplot(dpop.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
+tsdisplay(dpop.reszty, main="reszty losowe")
+
+
+dveg.trend <- dveg$trend
+dveg.sezonowosc <- dveg$seasonal
+dveg.indeksy <- dveg$figure
+dveg.reszty <- dveg$random
+barplot(dveg.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
+tsdisplay(dveg.reszty, main="reszty losowe")
+
+#Na szeregach pierwotnych
+popdiff <- diff(pop)
+tsdisplay(popdiff)
+
+popdiff1 <- diff(popdiff, lag=12)  
+tsdisplay(popdiff1)
+## Uczynienie szeregów stacjonarnymi
