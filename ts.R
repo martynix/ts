@@ -99,9 +99,24 @@ dveg <- decompose(veg, type = "multiplicative")
 plot(dveg)
 
 #Dekompozycja za pomocą ruchomej średniej szeregu z trendem
-
+ts1ma1 <- filter(pop, sides=2, filter=rep(1/3,3))
+ts1ma2 <- filter(pop, sides=2, filter=rep(1/7,7))
+ts1ma3 <- filter(pop, sides=2, filter=rep(1/11,11))
+plot(pop, col="black", lty=2)
+lines(ts1ma1, col="red", lty=2)
+lines(ts1ma2, col="blue", lty=2)
+lines(ts1ma3, col="green", lty=2)
 
 #Dekompozycja za pomocą ruchomej średniej szeregu z sezonowością
+ts1ma11 <- filter(veg, sides=2, filter=rep(1/3,3))
+ts1ma22 <- filter(veg, sides=2, filter=rep(1/7,7))
+ts1ma33 <- filter(veg, sides=2, filter=rep(1/11,11))
+ts1ma44 <- filter(veg, sides=2, filter=rep(1/20,20))
 
-#BRAKUJE DUZO
+plot(veg, col="black", lty=2)
+lines(ts1ma11, col="red", lty=2)
+lines(ts1ma22, col="blue", lty=2)
+lines(ts1ma33, col="green", lty=2)
+lines(ts1ma44, col="purple", lty=2)
+
 
