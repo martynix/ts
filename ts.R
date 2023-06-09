@@ -119,4 +119,18 @@ lines(ts1ma22, col="blue", lty=2)
 lines(ts1ma33, col="green", lty=2)
 lines(ts1ma44, col="purple", lty=2)
 
+#Dekompozycja wielomianowa szeregu z trendem
+pop_poly1 <- tslm(pop~trend)
+pop_poly2 <- tslm(pop ~ trend + season)
 
+plot(pop)
+lines(fitted(pop_poly1), col = "blue", lty = 1)
+lines(fitted(pop_poly2), col = "red", lty = 2)
+
+#Dekompozycja wielomianowa szeregu z sezonowością
+veg_poly1 <- tslm(veg~trend)
+veg_poly2 <- tslm(veg ~ trend + season)
+
+plot(veg)
+lines(fitted(veg_poly1), col = "blue", lty = 1)
+lines(fitted(veg_poly2), col = "red", lty = 2)
