@@ -1,0 +1,491 @@
+---
+title: "Projekt z SZEREGÓW CZASOWYCH"
+author: "Martyna Pitera"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Wprowadzenie
+
+Analizowane szeregi czasowe dotyczą wielkości populacji ludzi w wieku powyżej 55 roku życia (włącznie) oraz cen warzyw w Polsce. Oba zbiory danych pochodzą ze strony https://fred.stlouisfed.org/. (fred.stlouisfed.org - baza danych Rezerwy Federalnej) 
+
+Analiza pierwszego zagadnienia ma na celu obserwację zmian zachodzących w społeczeństwie na całym świecie. Przewidywanie takich procesów jak starzenie się (lub odmładzanie) społeczeństwa wpływa np. na decyzje polityczne w sprawach polityki prorodzinnej czy prodemograficznej. Dane dotyczące populacji pochodzą z okresu od stycznia 1948 do maja 2023.
+
+Analiza cen warzyw w Polsce pozwoli zobrazować, jak na przestrzeni roku zmieniają się ceny warzyw. W zależności od miesiąca, wahania cen są mocno zauważalne; w trakcie zbiorów są najtańsze, a pożniej drożeją, co można powiązać np. z kosztami magazynowania i przechowywania w odpowiednich warunkach.
+
+Indeks harmonizowany cen towarów i usług konsumpcyjnych (Harmonized Index of Consumer Prices, HICP) jest miarą inflacji lub zmiany ogólnego poziomu cen. Wskaźnik ten jest stosowany w Unii Europejskiej do porównywania cen konsumpcyjnych między krajami członkowskimi.\
+indeks 2015=100 oznacza, że wszystkie wartości indeksu są wyrażane jako odchylenia od poziomu cen z 2015 roku. Na przykład, jeśli indeks wynosi 105, oznacza to, że ceny wzrosły o 5% w porównaniu do roku referencyjnego.\
+Ten dane dotyczą okresu od stycznia 1996 do czerwca 2023.
+
+
+## Wczytanie danych
+```{r a1}
+setwd('C:/Users/marty/Desktop/GITHUB/ts')
+pop <- read.csv('pop.csv')
+veg <- read.csv('veg.csv')
+
+colnames(pop) <- c('data','liczba')
+colnames(veg) <- c('data', 'cena')
+
+pop$data <- as.Date(pop$data)
+pop$liczba <- as.numeric(pop$liczba)
+
+veg$data <- as.Date(veg$data)
+veg$cena <- as.numeric(veg$cena)
+
+pop <- ts(pop$liczba, start=1948, frequency = 12)
+pop
+
+veg <- ts(veg$cena, start=1996, frequency = 12)
+veg
+
+is.ts(pop)
+is.ts(veg)
+```
+
+## Omówienie głównych cech analizowanych szeregów na podstawie poznanych typów wykresów
+a. wykresy punktowe
+
+```{r a2}
+plot(pop)
+```
+Na wykresie widać, że wielkość populacji ludzi w wieku powyżej 55 roku życia (włącznie) niemalże ciągle rośnie. Obserwowalny jest m.in. niewielki spadek pomiędzy 1980 i 2000 rokiem.
+
+```{r a42}
+plot(veg)
+```
+
+Wykres indeksu cen warzyw w Polsce charakteryzuje się trendem rosnącym oraz wyraźną sezonowością. Ceny warzyw zmieniają się w każdym roku zależnie od miesiąca; jest to przecież produkt sezonowy, nie produkowany przez okrągły rok. Zbiory odbywają się w określonych porach roku i właśnie wtedy warzywa są najtańsze. 
+
+b. wykresy sezonowe
+
+```{r a3}
+monthplot(pop)
+
+monthplot(veg)
+```
+
+Powyższa funkcja pochodzi z pakietu stats i przedstawia podzbiory danych dla każdego z okresów - dla miesięcznych szeregów, dla każdego miesiąca rysowane są odrębne szeregi czasowe zawierające wartości zaobserwowane w kolejnych latach. Ponadto wyznaczana jest średnia wartość zaznaczona poziomą linią. Średnia utrzymuje się na prawie takim samym poziomie dla każdego miesiąca.
+
+Wykres monthplot dla szeregu czasowego dotyczącego populacji ukazuje trend wzrostowy w każdym miesiącu. 
+Z kolei wykres szeregu dla danych dotyczących cen warzyw przedstawia zarówno sezonowość, jak i trend wzrostowy. Średnia cen jest najwyższa w kwietniu.
+
+```{r a4, warning=FALSE}
+library(forecast)
+
+seasonplot(pop, 
+           col = rainbow(75), 
+           year.labels = TRUE, 
+           pch = 19)
+
+seasonplot(veg, 
+           col = rainbow(27), 
+           year.labels = TRUE, 
+           pch = 19)
+```
+
+Funkcja seasonplot z pakietu forecast pozwala na zaprezentowanie danych w rozbiciu na kolejne okresy jednostkowe. Forma taka pomaga analizować i zauważać zarówno sezonowość okresów jak i odstępstwom od wzorca sezonowości w poszczególnych okresach (np. jednostkowe, nietypowe zachowanie w konkretnym roku).
+
+Seasonal plot dla szeregu "pop" przedstawia kolorowe, wręcz symetryczne względem siebie linie, czyli trend.
+Dla szeregu "veg" widać natomiast, że ceny warzyw zazwyczaj są najniższe w sierpniu. Następnie zaczynają powoli rosnąć, by zacząć się wyraźnie obniżać w okolicach czerwca.
+
+c. wykresy pudełkowe
+
+```{r a5}
+boxplot(pop ~ cycle(pop))
+boxplot(veg ~ cycle(veg))
+```
+
+Wykres typu boxplot dostarcza nam syntetycznych informacji na temat zmienności szeregów dla poszczególnych okresów. Na wykresie mamy mediany, kwartyle(brzegi pudełek), wartości minimalne i maksymalne(wąsy) oraz wartości odstające (kropki)
+
+Wykres pudełkowy potwierdza wniosek postawiony wcześniej, że w przypadku szerego "pop" średnia z każdego miesiąca utrzymuje się na bardzo zbliżonym poziomie.
+
+Z kolei boxplot dla szeregu "veg" dowodzi, że średnia cena faktycznie osiąga najniższą wartość w sierpniu. Choć najwyższy "wąs" dotyczy stycznia, to jednak najwyższa średnia cen jest obserwowana w kwietniu.
+
+d. wykresy rozrzutu dla wartości opóźnionych
+
+```{r a6}
+lag.plot(pop, lags=12, do.lines=FALSE)
+lag.plot(veg, lags=12, do.lines=FALSE)
+
+```
+
+Wykres rozrzutu jest podstawowym narzędziem graficznym wykorzystywanym do badania zależności dwóch zmiennych w klasycznej analizie danych. Na wykresach rozrzutu dla wartości opóźnionych przedstawiamy zależność wartości szeregu od wartości przesuniętych o opóźnienie lag - rysujemy pary (X(t), X(t-lag)) dla kolejnych chwil t. Jeżeli punkty na wykresie przedstawiają jednorodną chmurę punktów, bez jakiejkolwiek struktury, świadczy to o braku istotnej zależności czasowej pomiędzy wartościami szeregu przesuniętymi o konkretne opóźnienie.
+
+Wykres rozrzutu dla pierwszego szeregu wskazuje na silną korelację danych dla opóźnień każdym krokiem. 
+
+Dla szeregu veg zauważalna jest korelacja dla lag=1, oznacza to, że obecne wartości szeregu czasowego są skorelowane z wartościami opóźnionymi o jedną jednostkę czasu. To może wskazywać na autokorelację autoregresyjną (AR) rzędu 1, co oznacza, że bieżące wartości są zależne od wartości jednej poprzedniej obserwacji.
+
+Mocna korelacja występuje też dla lag=12, co może wskazywać na obecność rocznej sezonowości.
+
+e. wykresy autokorelacji ACF
+
+```{r a7}
+acf(pop)
+```
+
+Dodatnie i powoli zanikające wartości ACF sugerują, że dane zawierają deterministyczną składową trendu. 
+
+```{r a40}
+acf(veg)
+```
+
+ACF zanikające bardzo powoli i cyklicznie wskazuje na obecność trendu sezonowego.
+
+f. wykresy cząstkowej korelacji PACF
+
+```{r a8}
+pacf(pop)
+```
+
+```{r a41}
+pacf(veg)
+```
+
+## Dekompozycja
+
+# a. dekompozycja addytywna szeregu z trendem
+
+```{r a9}
+dpop <- decompose(pop, type = "additive")
+plot(dpop)
+```
+
+# b. dekompozycja multiplikatywna szeregu z trendem
+
+```{r a11}
+dpop1 <- decompose(pop, type = "multiplicative")
+plot(dpop1)
+```
+
+Widać, że po dekompozycji multiplikatywnej wykres random jest mniej wygładzony, ma większe wahania.
+
+# c. dekompozycja addytywna szeregu z sezonowością
+
+```{r a10}
+dveg <- decompose(veg, type = "additive")
+plot(dveg)
+```
+
+# d. dekompozycja multiplikatywna szeregu z sezonowością
+
+```{r a12}
+dveg1 <- decompose(veg, type = "multiplicative")
+plot(dveg1)
+```
+
+Wykres random w przypadku dekompozycji addytywnej osiąga inny przedział wartości - nawet wartości ujemne. Za to po dekompozycji multiplikatywnej wykres znajduje się "wyżej" na osi Y.
+
+# e. dekompozycja za pomocą ruchomej średniej szeregu z trendem
+
+```{r a13}
+ts1ma1 <- filter(pop, sides=2, filter=rep(1/3,3))
+ts1ma2 <- filter(pop, sides=2, filter=rep(1/7,7))
+ts1ma3 <- filter(pop, sides=2, filter=rep(1/25,25))
+plot(pop, col="black", lty=2)
+lines(ts1ma1, col="red", lty=2)
+lines(ts1ma2, col="blue", lty=2)
+lines(ts1ma3, col="green", lty=2)
+```
+
+Kolorowe linie leżą niemalże na oryginalnym wykresie szeregu czasowego "pop" - od początku był on już dość gładki.
+
+# f. dekompozycja za pomocą ruchomej średniej szeregu z sezonowością
+
+```{r a14}
+ts1ma11 <- filter(veg, sides=2, filter=rep(1/11,11))
+ts1ma22 <- filter(veg, sides=2, filter=rep(1/20,20))
+ts1ma33 <- filter(veg, sides=2, filter=rep(1/25,25))
+
+plot(veg, col="black", lty=2)
+lines(ts1ma11, col="red", lty=2)
+#lines(ts1ma22, col="blue", lty=2)
+lines(ts1ma33, col="green", lty=2)
+```
+
+Można zauważyć, że im większa wartość x w funkcji rep(1/x,x), tymbardziej linie stają się wygładzone.
+
+# g. dekompozycja wielomianowa szeregu z trendem
+
+```{r a15}
+pop_poly1 <- tslm(pop~trend)
+pop_poly2 <- tslm(pop ~ trend + season)
+
+plot(pop)
+lines(fitted(pop_poly1), col = "blue", lty = 1)
+lines(fitted(pop_poly2), col = "red", lty = 2)
+```
+
+Kolorowe linie nachodzą na siebie, ukazując wyraźny trend wzrostowy bez trendu sezonowego.
+
+# h. dekompozycja wielomianowa szeregu z sezonowością
+
+```{r a16}
+veg_poly1 <- tslm(veg~trend)
+veg_poly2 <- tslm(veg ~ trend + season)
+
+plot(veg)
+lines(fitted(veg_poly1), col = "blue", lty = 1)
+lines(fitted(veg_poly2), col = "red", lty = 2)
+```
+
+Niebieska linia na wykresie wskazuje na trend wzrostowy. 
+Czerwona linia świadczy zać o występowaniu sezonowości.
+
+## Eliminacja trendu i sezonowości
+Na zajęciach poznałam różnie sposoby eliminacji trendu i sezonowości. 
+
+Na szeregach powstałych po dekompozycji addytywnej:
+
+```{r a17}
+dpop.trend <- dpop$trend
+dpop.sezonowosc <- dpop$seasonal
+dpop.indeksy <- dpop$figure
+dpop.reszty <- dpop$random
+barplot(dpop.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
+tsdisplay(dpop.reszty, main="reszty losowe")
+
+
+dveg.trend <- dveg$trend
+dveg.sezonowosc <- dveg$seasonal
+dveg.indeksy <- dveg$figure
+dveg.reszty <- dveg$random
+barplot(dveg.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
+tsdisplay(dveg.reszty, main="reszty losowe")
+```
+
+Lub odsezonowanie szeregu veg:
+
+```{r a18}
+dveg1 <- decompose(veg, type = "multiplicative")
+dveg2 <- seasadj(dveg1)
+plot(veg)
+lines(dveg2, col="orange", lty=1)
+```
+
+## Uczynienie szeregów stacjonarnymi
+
+W tym celu przeprowadziłam różnicowanie na szeregach pierwotnych z pomocą funkcji diff:
+
+```{r a19}
+#Przed
+tsdisplay(pop)
+#Po
+popdiff <- diff(pop)
+tsdisplay(popdiff)
+popdiff1 <- diff(popdiff, lag=12)  
+tsdisplay(popdiff1)
+
+#Przed
+tsdisplay(veg)
+#Po
+vegdiff <- diff(veg)
+tsdisplay(vegdiff)
+vegdiff1 <- diff(vegdiff, lag=12)
+tsdisplay(vegdiff1)
+```
+
+W celu sprawdzenia stacjonarności szeregu czasowego, przeprowadziłam test Kwiatkowskiego-Phillipsa-Schmidta (KPSS).
+
+Hipoteza zerowa (H0): Szereg czasowy jest stacjonarny.\
+Hipoteza alternatywna (HA): Szereg czasowy nie jest stacjonarny. 
+
+```{r a20, warning=FALSE}
+library(tseries)
+kpss.test(popdiff1)
+kpss.test(vegdiff1)
+```
+
+W obu przypadkach P-value dla testu KPSS wynosi 0.1, czyli jest większa od poziomu istotności 0.05. To oznacza, że nie ma wystarczających dowodów, aby odrzucić hipotezę zerową (H0) o stacjonarności poziomu szeregu czasowego.
+
+Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodów na niestacjonarność szeregów czasowych popdiff1 i vegdiff1.
+
+## Sprawdzenie, czy szeregi są realizacją szumu białego
+Symulacja szumu białego:
+
+```{r a21}
+SB2 <- rnorm(n=50)
+SB2 <- as.ts(SB2)
+plot(SB2, main='Szum biały (n=50)')
+Acf(SB2, lag.max=48, main='Szum biały (n=50)')
+Pacf(SB2, lag.max=48, main='Szum biały (n=50)')
+tsdisplay(SB2)
+```
+Szereg możemy uznać za realizację białego szumu jeżeli:\
+  i)  co najmniej 95% autokorelacji próbkowych (ACF(h), h=1,2,.., hmax) znajduje się w przedziale       ufności \
+  ii) nie ma autokorelacji „istotnie ” wychodzących poza przedział ufności \
+
+```{r a22}
+tsdisplay(SB2)
+tsdisplay(popdiff1)
+```
+
+Szereg popdiff1 (czyli pop po wyeliminowaniu trendu i sezonowości) nie jest realizacją szumu białego ponieważ wartości korelacji wystają poza przedziały ufności.
+
+```{r a23}
+tsdisplay(SB2)
+tsdisplay(vegdiff1)
+```
+
+Szereg vegdiff1 (czyli veg po wyeliminowaniu trendu i sezonowości) nie jest realizacją szumu białego ponieważ wartości korelacji są dość duże i wystają poza przedziały ufności.\
+
+Dla szeregu popdiff1 warto brać pod uwagę modele AR(36), AR(24) i AR(12) oraz MA(36), MA(24), MA(12).\
+
+Dla szeregu vegdiff1 warto brać pod uwagę modele AR(36), AR(24) i AR(12) oraz MA(35), MA(23), MA(12).
+
+## Metody estymacji
+# Dopasowanie modelu AR dla szeregu popdiff1:
+
+1.metoda Yule-Walkera 
+
+```{r a24}
+popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
+popdiff1.yw
+```
+
+2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+
+```{r a25}
+popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=36, method=c("mle"))
+popdiff1.mle
+```
+
+3.Automatyczny dobór: (aic=TRUE)
+
+```{r a26}
+popdiff1.aic <- ar(popdiff1, aic=TRUE)
+popdiff1.aic
+```
+
+# Dopasowanie modelu AR dla szeregu vegdiff1:
+1.metoda Yule-Walkera 
+
+```{r a27}
+vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
+vegdiff1.yw
+
+```
+
+2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+
+```{r a28}
+vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("mle"))
+vegdiff1.mle
+```
+
+3.Automatyczny dobór: (aic=TRUE)
+
+```{r a29}
+vegdiff1.aic <- ar(vegdiff1, aic=TRUE)
+vegdiff1.aic
+```
+
+Automatyczny dobór jest zbliżony do metody Yule-Walkera. Automatyczny dobór w obu przypadkach dobrał modele rzędu niższego niż ten dobrany przed dwie pozostałe metody.
+
+## Wyznaczenie współczynników dla modelu MA(q)
+
+```{r a30}
+popdiff1_arima36 <- arima(popdiff1, order=c(0,0,36))
+summary(popdiff1_arima36)
+
+popdiff1_arima24 <- arima(popdiff1, order=c(0,0,24))
+summary(popdiff1_arima24)
+
+popdiff1_arima12 <- arima(popdiff1, order=c(0,0,12))
+summary(popdiff1_arima12)
+```
+
+```{r a31}
+vegdiff1_arima35 <- arima(vegdiff1, order=c(0,0,35))
+summary(vegdiff1_arima35)
+
+vegdiff1_arima23 <- arima(vegdiff1, order=c(0,0,23))
+summary(vegdiff1_arima23)
+
+vegdiff1_arima12 <- arima(vegdiff1, order=c(0,0,12))
+summary(vegdiff1_arima12)
+```
+
+## Wyznaczenie optymalnych modeli z wykorzystaniem funkcji auto.arima()
+Dla szeregu popdiff1:
+
+```{r a32}
+popdiff1_auto_arimaAIC <- auto.arima(popdiff1,ic="aic")
+popdiff1_auto_arimaAIC
+
+popdiff1_auto_arimaAICC <- auto.arima(popdiff1,ic="aicc")
+popdiff1_auto_arimaAICC
+
+popdiff1_auto_arimaBIC <- auto.arima(popdiff1,ic="bic")
+popdiff1_auto_arimaBIC
+```
+
+Najlepszym modelem jest ARIMA(0,0,1)(0,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
+
+
+Dla szeregu vegdiff1:
+
+```{r a33}
+vegdiff1_auto_arimaAIC <- auto.arima(vegdiff1,ic="aic")
+vegdiff1_auto_arimaAIC
+
+vegdiff1_auto_arimaAICC <- auto.arima(vegdiff1,ic="aicc")
+vegdiff1_auto_arimaAICC
+
+vegdiff1_auto_arimaBIC <- auto.arima(vegdiff1,ic="bic")
+vegdiff1_auto_arimaBIC
+```
+
+Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
+
+## Prognozowanie z wykorzystaniem metod naiwnych
+
+```{r a34}
+pop.meanf <- meanf(pop, h = 30)
+plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
+
+popdiff1.meanf <- meanf(popdiff1, h=30)
+plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
+
+pop.naive <- naive(pop, h=24)
+plot(pop.naive, main="Metoda naiwna")
+
+pop.snaive <- snaive(pop, h=24)
+plot(pop.snaive, main="Metoda naiwna sezonowa")
+
+
+veg.meanf <- meanf(veg, h = 24)
+plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)")
+
+vegdiff1.meanf <- meanf(vegdiff1, h=24)
+plot(vegdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
+
+veg.naive <- naive(veg, h=24)
+plot(veg.naive, main="Metoda naiwna")
+
+veg.snaive <- snaive(veg, h=24)
+plot(veg.snaive, main="Metoda naiwna sezonowa")
+```
+
+
+## Prognozowanie z wykorzystaniem innych metod 
+
+```{r a35 pressure, echo=TRUE}
+hw.pop <- hw(pop)
+plot(hw.pop, main="Prognozowanie za pomocą metody Holt-Wintersa")
+
+hw.veg <- hw(veg)
+plot(hw.veg, main="Prognozowanie za pomocą metody Holt-Wintersa")
+
+arima.pop <- forecast(pop, h=100)
+plot(arima.pop, main="Prognozowanie za pomocą modelu ARIMA")
+
+arima.veg <- forecast(veg, h=100)
+plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
+```
+
+

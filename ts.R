@@ -80,6 +80,15 @@ acf(veg)
 pacf(pop)
 pacf(veg)
 
+#dodatnie i powoli zanikające wartości ACF sugerują, że dane zawierają deterministyczną składową trendu
+
+#ACF zanikające bardzo powoli i cyklicznie wskazuje na obecność trendu sezonowego.
+#szybkość zanikania ACF pozwala na identyfikację ważnych klas modeli.
+
+#bliska 1 wartości PACF dla opóźnienia h=lag=1 sugerują obecność dużego trendu wzrostowego w danych.
+#użyteczne narzędzie podczas identyfikacji ważnych klas modeli.
+
+
 ## Dekompozycja
 
 #Dekompozycja addytywna szeregu z trendem
@@ -101,7 +110,7 @@ plot(dveg1)
 #Dekompozycja za pomocą ruchomej średniej szeregu z trendem
 ts1ma1 <- filter(pop, sides=2, filter=rep(1/3,3))
 ts1ma2 <- filter(pop, sides=2, filter=rep(1/7,7))
-ts1ma3 <- filter(pop, sides=2, filter=rep(1/11,11))
+ts1ma3 <- filter(pop, sides=2, filter=rep(1/25,25))
 plot(pop, col="black", lty=2)
 lines(ts1ma1, col="red", lty=2)
 lines(ts1ma2, col="blue", lty=2)
@@ -188,12 +197,12 @@ kpss.test(popdiff1)
 kpss.test(vegdiff1)
 #P-wartość dla testu KPSS wynosi 0.1, co jest większe od poziomu istotności 0.05. To oznacza, że nie ma wystarczających dowodów, aby odrzucić hipotezę zerową (H0) o stacjonarności poziomu szeregu czasowego.
 
-#Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodóhttp://127.0.0.1:10779/graphics/plot_zoom_png?width=2548&height=1335w na niestacjonarność poziomu szeregów czasowych popdiff1 i vegdiff1.
+#Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodów na niestacjonarność poziomu szeregów czasowych popdiff1 i vegdiff1.
 
 #Symulacja szumu białego
 SB2 <- rnorm(n=50)
 SB2 <- as.ts(SB2)
-plot(SB2, main='Szum biaĹ‚y (n=50)')
+plot(SB2, main='Szum biały (n=50)')
 Acf(SB2, lag.max=48)
 Pacf(SB2, lag.max=48)
 tsdisplay(SB2)
@@ -289,17 +298,24 @@ vegdiff1_auto_arimaBIC
 #Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
 
 ## Prognozowanie z wykorzystaniem metod naiwnych
-pop.meanf <- meanf(pop, h = 30)
+pop.meanf <- meanf(pop, h = 24)
 plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 
-popdiff1.meanf <- meanf(popdiff1, h=30)
+popdiff1.meanf <- meanf(popdiff1, h=24)
 plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
 
 pop.naive <- naive(pop, h=24)
 plot(pop.naive, main="Metoda naiwna")
 
+#popwyciete <- window(pop, start = c(1948,1), end = c(2015,12))
+#popwyciete.naive <- naive(popwyciete, h=96)
+#plot(popwyciete.naive)
+
 pop.snaive <- snaive(pop, h=24)
 plot(pop.snaive, main="Metoda naiwna sezonowa")
+
+#popwyciete.snaive <- snaive(popwyciete, h=96)
+#plot(popwyciete.snaive)
 
 
 veg.meanf <- meanf(veg, h = 24)
