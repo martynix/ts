@@ -150,10 +150,98 @@ dveg.reszty <- dveg$random
 barplot(dveg.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
 tsdisplay(dveg.reszty, main="reszty losowe")
 
-#Na szeregach pierwotnych
+#Odsezonowanie szeregu veg
+dveg1 <- decompose(veg, type = "multiplicative")
+dveg2 <- seasadj(dveg1)
+plot(veg)
+lines(dveg2, col="orange", lty=1)
+
+
+## Uczynienie szeregów stacjonarnymi
+#Różnicowanie na szeregach pierwotnych z pomocą funkcji diff
+
+#Przed
+tsdisplay(pop)
+#Po
 popdiff <- diff(pop)
 tsdisplay(popdiff)
-
 popdiff1 <- diff(popdiff, lag=12)  
 tsdisplay(popdiff1)
-## Uczynienie szeregów stacjonarnymi
+
+#Przed
+tsdisplay(veg)
+#Po
+vegdiff <- diff(veg)
+tsdisplay(vegdiff)
+vegdiff1 <- diff(vegdiff, lag=12)
+tsdisplay(vegdiff1)
+
+#test Kwiatkowskiego-Phillipsa-Schmidta (KPSS) w celu sprawdzenia stacjonarności szeregu czasowego
+#Hipoteza zerowa (H0): Szereg czasowy jest stacjonarny.
+#Hipoteza alternatywna (HA): Szereg czasowy nie jest stacjonarny.
+
+library(tseries)
+kpss.test(popdiff1)
+
+#P-wartość dla testu KPSS wynosi 0.1, co jest większe od poziomu istotności 0.05. To oznacza, że nie ma wystarczających dowodów, aby odrzucić hipotezę zerową (H0) o stacjonarności poziomu szeregu czasowego.
+
+kpss.test(vegdiff1)
+#P-wartość dla testu KPSS wynosi 0.1, co jest większe od poziomu istotności 0.05. To oznacza, że nie ma wystarczających dowodów, aby odrzucić hipotezę zerową (H0) o stacjonarności poziomu szeregu czasowego.
+
+#Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodów na niestacjonarność poziomu szeregów czasowych popdiff1 i vegdiff1.
+
+#Symulacja szumu białego
+SB2 <- rnorm(n=50)
+SB2 <- as.ts(SB2)
+plot(SB2, main='Szum biaĹ‚y (n=50)')
+Acf(SB2, lag.max=48)
+Pacf(SB2, lag.max=48)
+tsdisplay(SB2)
+
+tsdisplay(popdiff1)
+
+# szereg nie jest realizacją szumu białego ponieważ wartości korelacji wystają poza przedziały ufności
+
+tsdisplay(SB2)
+
+tsdisplay(vegdiff1)
+# szereg nie jest realizacją szumu białego ponieważ wartości korelacji są duże i wystają poza przedziały ufności
+#Teoretyczna funkcja ACF wynosi 0 dla h>0 (1 dla h=0)
+#Reguła identyfikacyjna WN: Szereg możemy uznać za realizację białego szumu jeżeli:
+  #i) co najmniej 95% autokorelacji próbkowych (ACF(h), h=1,2,.., hmax) znajduje się w przedziale ufności 
+  #ii) nie ma autokorelacji „istotnie ” wychodzących poza przedział ufności 
+
+#Dla szeregu popdiff1 warto brać pod uwagę modele AR(p) rzędu 6, a także 24 i 12, oraz modele MA(q) rzędu 36, 24, 12
+#Dla szeregu vegdiff1 warto brać pod uwagę modele AR(p) rzędu 36, a także 24 i 12, oraz modele MA(q) rzędu 35, 23, 12
+
+
+## Metody estymacji
+#Dopasowanie modelu autoagresywnego dla szeregu popdiff1
+# 1.metoda Yule-Walkera 
+popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=30, method=c("yule-walker"))
+popdiff1.yw
+
+# 2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=30, method=c("mle"))
+popdiff1.mle
+
+# 3.Automatyczny dobór: (aic=TRUE)
+popdiff1.aic <- ar(popdiff1, aic=TRUE)
+popdiff1.aic
+
+
+#Dopasowanie modelu autoagresywnego dla szeregu vegdiff1
+# 1.metoda Yule-Walkera 
+vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=15, method=c("yule-walker"))
+vegdiff1.yw
+
+# 2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=15, method=c("mle"))
+vegdiff1.mle
+
+# 3.Automatyczny dobór: (aic=TRUE)
+vegdiff1.aic <- ar(vegdiff1, aic=TRUE)
+vegdiff1.aic
+
+#Automatyczny dobór jest zbliżony do metody Yule-Walkera. Automatyczny dobór w obu przypadkach dobrał modele rzędu niższego niż ten dobrany przed dwie pozostałe metody.
+
