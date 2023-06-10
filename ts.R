@@ -290,20 +290,43 @@ vegdiff1_auto_arimaBIC
 
 ## Prognozowanie z wykorzystaniem metod naiwnych
 pop.meanf <- meanf(pop, h = 30)
-plot(pop.meanf)
+plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
+
+popdiff1.meanf <- meanf(popdiff1, h=30)
+plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
 
 pop.naive <- naive(pop, h=24)
-plot(pop.naive)
+plot(pop.naive, main="Metoda naiwna")
 
 pop.snaive <- snaive(pop, h=24)
-plot(pop.snaive)
+plot(pop.snaive, main="Metoda naiwna sezonowa")
 
 
-veg.meanf <- meanf(veg, h = 30)
-plot(veg.meanf)
+veg.meanf <- meanf(veg, h = 24)
+plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)")
+
+vegdiff1.meanf <- meanf(vegdiff1, h=24)
+plot(vegdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
 
 veg.naive <- naive(veg, h=24)
-plot(veg.naive)
+plot(veg.naive, main="Metoda naiwna")
 
 veg.snaive <- snaive(veg, h=24)
-plot(veg.snaive)
+plot(veg.snaive, main="Metoda naiwna sezonowa")
+
+
+## Prognozowanie z wykorzystaniem innych metod 
+hw.pop <- hw(pop)
+plot(hw.pop, main="Prognozowanie za pomocą metody Holt-Wintersa")
+
+hw.veg <- hw(veg)
+plot(hw.veg, main="Prognozowanie za pomocą metody Holt-Wintersa")
+
+arima.pop <- forecast(pop, h=100)
+plot(arima.pop, main="Prognozowanie za pomocą modelu ARIMA")
+
+arima.veg <- forecast(veg, h=100)
+plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
+
+
+
