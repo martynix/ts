@@ -188,7 +188,7 @@ kpss.test(popdiff1)
 kpss.test(vegdiff1)
 #P-wartość dla testu KPSS wynosi 0.1, co jest większe od poziomu istotności 0.05. To oznacza, że nie ma wystarczających dowodów, aby odrzucić hipotezę zerową (H0) o stacjonarności poziomu szeregu czasowego.
 
-#Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodów na niestacjonarność poziomu szeregów czasowych popdiff1 i vegdiff1.
+#Na podstawie powyższych wyników można wnioskować, że nie ma istotnych dowodóhttp://127.0.0.1:10779/graphics/plot_zoom_png?width=2548&height=1335w na niestacjonarność poziomu szeregów czasowych popdiff1 i vegdiff1.
 
 #Symulacja szumu białego
 SB2 <- rnorm(n=50)
@@ -211,18 +211,18 @@ tsdisplay(vegdiff1)
   #i) co najmniej 95% autokorelacji próbkowych (ACF(h), h=1,2,.., hmax) znajduje się w przedziale ufności 
   #ii) nie ma autokorelacji „istotnie ” wychodzących poza przedział ufności 
 
-#Dla szeregu popdiff1 warto brać pod uwagę modele AR(p) rzędu 6, a także 24 i 12, oraz modele MA(q) rzędu 36, 24, 12
+#Dla szeregu popdiff1 warto brać pod uwagę modele AR(p) rzędu 36, a także 24 i 12, oraz modele MA(q) rzędu 36, 24, 12
 #Dla szeregu vegdiff1 warto brać pod uwagę modele AR(p) rzędu 36, a także 24 i 12, oraz modele MA(q) rzędu 35, 23, 12
 
 
 ## Metody estymacji
-#Dopasowanie modelu autoagresywnego dla szeregu popdiff1
+#Dopasowanie modelu AR dla szeregu popdiff1
 # 1.metoda Yule-Walkera 
-popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=30, method=c("yule-walker"))
+popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
 popdiff1.yw
 
 # 2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
-popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=30, method=c("mle"))
+popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=36, method=c("mle"))
 popdiff1.mle
 
 # 3.Automatyczny dobór: (aic=TRUE)
@@ -230,13 +230,13 @@ popdiff1.aic <- ar(popdiff1, aic=TRUE)
 popdiff1.aic
 
 
-#Dopasowanie modelu autoagresywnego dla szeregu vegdiff1
+#Dopasowanie modelu AR dla szeregu vegdiff1
 # 1.metoda Yule-Walkera 
-vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=15, method=c("yule-walker"))
+vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
 vegdiff1.yw
 
 # 2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
-vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=15, method=c("mle"))
+vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("mle"))
 vegdiff1.mle
 
 # 3.Automatyczny dobór: (aic=TRUE)
@@ -245,3 +245,6 @@ vegdiff1.aic
 
 #Automatyczny dobór jest zbliżony do metody Yule-Walkera. Automatyczny dobór w obu przypadkach dobrał modele rzędu niższego niż ten dobrany przed dwie pozostałe metody.
 
+## Wyznaczenie współczynników dla modelu MA(q)
+popdiff1_arima <- arima(popdiff1, order=c(0,0,36))
+popdiff1_arima
