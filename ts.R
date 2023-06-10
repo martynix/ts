@@ -246,5 +246,64 @@ vegdiff1.aic
 #Automatyczny dobór jest zbliżony do metody Yule-Walkera. Automatyczny dobór w obu przypadkach dobrał modele rzędu niższego niż ten dobrany przed dwie pozostałe metody.
 
 ## Wyznaczenie współczynników dla modelu MA(q)
-popdiff1_arima <- arima(popdiff1, order=c(0,0,36))
-popdiff1_arima
+popdiff1_arima36 <- arima(popdiff1, order=c(0,0,36))
+summary(popdiff1_arima36)
+
+popdiff1_arima24 <- arima(popdiff1, order=c(0,0,24))
+summary(popdiff1_arima24)
+
+popdiff1_arima12 <- arima(popdiff1, order=c(0,0,12))
+summary(popdiff1_arima12)
+
+vegdiff1_arima35 <- arima(vegdiff1, order=c(0,0,35))
+summary(vegdiff1_arima35)
+
+vegdiff1_arima23 <- arima(vegdiff1, order=c(0,0,23))
+summaru(vegdiff1_arima23)
+
+vegdiff1_arima12 <- arima(vegdiff1, order=c(0,0,12))
+summary(vegdiff1_arima12)
+
+
+## Wyznaczenie optymalnych modeli z wykorzystaniem funkcji auto.arima()
+#Dla szeregu popdiff1
+popdiff1_auto_arimaAIC <- auto.arima(popdiff1,ic="aic")
+popdiff1_auto_arimaAIC
+
+popdiff1_auto_arimaAICC <- auto.arima(popdiff1,ic="aicc")
+popdiff1_auto_arimaAICC
+
+popdiff1_auto_arimaBIC <- auto.arima(popdiff1,ic="bic")
+popdiff1_auto_arimaBIC
+#Najlepszym modelem jest ARIMA(0,0,1)(0,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
+
+#Dla szeregu vegdiff1
+vegdiff1_auto_arimaAIC <- auto.arima(vegdiff1,ic="aic")
+vegdiff1_auto_arimaAIC
+
+vegdiff1_auto_arimaAICC <- auto.arima(vegdiff1,ic="aicc")
+vegdiff1_auto_arimaAICC
+
+vegdiff1_auto_arimaBIC <- auto.arima(vegdiff1,ic="bic")
+vegdiff1_auto_arimaBIC
+#Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
+
+## Prognozowanie z wykorzystaniem metod naiwnych
+pop.meanf <- meanf(pop, h = 30)
+plot(pop.meanf)
+
+pop.naive <- naive(pop, h=24)
+plot(pop.naive)
+
+pop.snaive <- snaive(pop, h=24)
+plot(pop.snaive)
+
+
+veg.meanf <- meanf(veg, h = 30)
+plot(veg.meanf)
+
+veg.naive <- naive(veg, h=24)
+plot(veg.naive)
+
+veg.snaive <- snaive(veg, h=24)
+plot(veg.snaive)
