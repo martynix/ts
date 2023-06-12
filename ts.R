@@ -36,6 +36,7 @@ is.ts(veg)
 ## Omówienie głównych cech analizowanych szeregów na podstawie poznanych typów wykresów
 
 ## Wykresy punktowe
+options(scipen=5)
 plot(pop)
 plot(veg)
 
@@ -142,15 +143,14 @@ plot(veg)
 lines(fitted(veg_poly1), col = "blue", lty = 1)
 lines(fitted(veg_poly2), col = "red", lty = 2)
 
-## Eliminacja trendu i sezonowości
-#Na szeregach powstałych po dekompozycji addytywnej
+# Eliminacja trendu i sezonowości
+## Na szeregach powstałych po dekompozycji addytywnej
 dpop.trend <- dpop$trend
 dpop.sezonowosc <- dpop$seasonal
 dpop.indeksy <- dpop$figure
 dpop.reszty <- dpop$random
 barplot(dpop.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
 tsdisplay(dpop.reszty, main="reszty losowe")
-
 
 dveg.trend <- dveg$trend
 dveg.sezonowosc <- dveg$seasonal
@@ -159,15 +159,14 @@ dveg.reszty <- dveg$random
 barplot(dveg.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
 tsdisplay(dveg.reszty, main="reszty losowe")
 
-#Odsezonowanie szeregu veg
+## Odsezonowanie szeregu veg
 dveg1 <- decompose(veg, type = "multiplicative")
 dveg2 <- seasadj(dveg1)
 plot(veg)
 lines(dveg2, col="orange", lty=1)
 
-
 ## Uczynienie szeregów stacjonarnymi
-#Różnicowanie na szeregach pierwotnych z pomocą funkcji diff
+# Różnicowanie na szeregach pierwotnych z pomocą funkcji diff
 
 #Przed
 tsdisplay(pop)
@@ -268,7 +267,7 @@ vegdiff1_arima35 <- arima(vegdiff1, order=c(0,0,35))
 summary(vegdiff1_arima35)
 
 vegdiff1_arima23 <- arima(vegdiff1, order=c(0,0,23))
-summaru(vegdiff1_arima23)
+summary(vegdiff1_arima23)
 
 vegdiff1_arima12 <- arima(vegdiff1, order=c(0,0,12))
 summary(vegdiff1_arima12)
@@ -301,18 +300,17 @@ vegdiff1_auto_arimaBIC
 popwyciete <- window(pop, start = c(1948,1), end = c(2020,12))
 
 pop.meanf <- meanf(popwyciete, h = 29)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 
-#popdiff1.meanf <- meanf(popdiff1, h=29)
-
-#par(mfrow=c(1,2))
-#plot(popdiff1, main="Oryginalny szereg stacjonarny")
-#plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg z trendem - stacjonarny)")
+pop.meanf1 <- meanf(popdiff1wyciete, h = 29)
+par(mfrow=c(2,1))
+plot(popdiff1, main="Oryginalny szereg stacjonarny")
+plot(pop.meanf1, main="Prognoza na podstawie średniej (szereg z trendem - stacjonarny)")
 
 pop.naive <- naive(popwyciete, h=29)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.naive, main="Metoda naiwna (szereg z trendem)")
 
@@ -320,53 +318,63 @@ plot(pop.naive, main="Metoda naiwna (szereg z trendem)")
 #plot(popwyciete.naive)
 
 pop.snaive <- snaive(popwyciete, h=29)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.snaive, main="Metoda naiwna sezonowa")
 
-veg
+pop.dryft <- rwf(popwyciete, h=28, drift = TRUE)
+par(mfrow=c(2,1))
+plot(pop, main="Oryginalny szereg")
+plot(pop.dryft, main="Metoda naiwna z dryftem")
+
 
 vegwyciete <- window(veg, start = c(1996,1), end = c(2020,12))
 
 veg.meanf <- meanf(vegwyciete, h = 28)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
-plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)")
+plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)", ylim=c(40,200))
 
-#vegdiff1.meanf <- meanf(vegdiff1, h=28)
-#plot(vegdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
+vegdiff1wyciete <- window(vegdiff1, start = c(1996,1), end = c(2020,12))
+
+veg.meanf1 <- meanf(vegdiff1wyciete, h = 28)
+par(mfrow=c(2,1))
+plot(vegdiff1wyciete, main="Oryginalny szereg stacjonarny")
+plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)", ylim=c(40,200))
 
 veg.naive <- naive(vegwyciete, h=28)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
 plot(veg.naive, main="Metoda naiwna")
 
 veg.snaive <- snaive(vegwyciete, h=28)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
-plot(veg.snaive, main="Metoda naiwna sezonowa")
+plot(veg.snaive, main="Metoda naiwna sezonowa",ylim=c(40,200))
 
+veg.dryft <- rwf(vegwyciete, h=28, drift = TRUE)
+par(mfrow=c(2,1))
+plot(veg, main="Oryginalny szereg")
+plot(veg.dryft, main="Metoda naiwna z dryftem",ylim=c(40,200))
 
 ## Prognozowanie z wykorzystaniem innych metod 
 hw.pop <- hw(popwyciete)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(hw.pop, main="Prognozowanie za pomocą metody Holt-Wintersa")
 
 hw.veg <- hw(vegwyciete)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
 plot(hw.veg, main="Prognozowanie za pomocą metody Holt-Wintersa")
 
 arima.pop <- forecast(popwyciete, h=29)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(arima.pop, main="Prognozowanie za pomocą modelu ARIMA")
 
 arima.veg <- forecast(vegwyciete, h=28)
-par(mfrow=c(1,2))
+par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
 plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
-
-
 
