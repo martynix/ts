@@ -298,50 +298,74 @@ vegdiff1_auto_arimaBIC
 #Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
 
 ## Prognozowanie z wykorzystaniem metod naiwnych
-pop.meanf <- meanf(pop, h = 24)
+popwyciete <- window(pop, start = c(1948,1), end = c(2020,12))
+
+pop.meanf <- meanf(popwyciete, h = 29)
+par(mfrow=c(1,2))
+plot(pop, main="Oryginalny szereg")
 plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 
-popdiff1.meanf <- meanf(popdiff1, h=24)
-plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
+#popdiff1.meanf <- meanf(popdiff1, h=29)
 
-pop.naive <- naive(pop, h=24)
-plot(pop.naive, main="Metoda naiwna")
+#par(mfrow=c(1,2))
+#plot(popdiff1, main="Oryginalny szereg stacjonarny")
+#plot(popdiff1.meanf, main="Prognoza na podstawie średniej (szereg z trendem - stacjonarny)")
 
-#popwyciete <- window(pop, start = c(1948,1), end = c(2015,12))
+pop.naive <- naive(popwyciete, h=29)
+par(mfrow=c(1,2))
+plot(pop, main="Oryginalny szereg")
+plot(pop.naive, main="Metoda naiwna (szereg z trendem)")
+
 #popwyciete.naive <- naive(popwyciete, h=96)
 #plot(popwyciete.naive)
 
-pop.snaive <- snaive(pop, h=24)
+pop.snaive <- snaive(popwyciete, h=29)
+par(mfrow=c(1,2))
+plot(pop, main="Oryginalny szereg")
 plot(pop.snaive, main="Metoda naiwna sezonowa")
 
-#popwyciete.snaive <- snaive(popwyciete, h=96)
-#plot(popwyciete.snaive)
+veg
 
+vegwyciete <- window(veg, start = c(1996,1), end = c(2020,12))
 
-veg.meanf <- meanf(veg, h = 24)
+veg.meanf <- meanf(vegwyciete, h = 28)
+par(mfrow=c(1,2))
+plot(veg, main="Oryginalny szereg")
 plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)")
 
-vegdiff1.meanf <- meanf(vegdiff1, h=24)
-plot(vegdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
+#vegdiff1.meanf <- meanf(vegdiff1, h=28)
+#plot(vegdiff1.meanf, main="Prognoza na podstawie średniej (szereg stacjonarny)")
 
-veg.naive <- naive(veg, h=24)
+veg.naive <- naive(vegwyciete, h=28)
+par(mfrow=c(1,2))
+plot(veg, main="Oryginalny szereg")
 plot(veg.naive, main="Metoda naiwna")
 
-veg.snaive <- snaive(veg, h=24)
+veg.snaive <- snaive(vegwyciete, h=28)
+par(mfrow=c(1,2))
+plot(veg, main="Oryginalny szereg")
 plot(veg.snaive, main="Metoda naiwna sezonowa")
 
 
 ## Prognozowanie z wykorzystaniem innych metod 
-hw.pop <- hw(pop)
+hw.pop <- hw(popwyciete)
+par(mfrow=c(1,2))
+plot(pop, main="Oryginalny szereg")
 plot(hw.pop, main="Prognozowanie za pomocą metody Holt-Wintersa")
 
-hw.veg <- hw(veg)
+hw.veg <- hw(vegwyciete)
+par(mfrow=c(1,2))
+plot(veg, main="Oryginalny szereg")
 plot(hw.veg, main="Prognozowanie za pomocą metody Holt-Wintersa")
 
-arima.pop <- forecast(pop, h=100)
+arima.pop <- forecast(popwyciete, h=29)
+par(mfrow=c(1,2))
+plot(pop, main="Oryginalny szereg")
 plot(arima.pop, main="Prognozowanie za pomocą modelu ARIMA")
 
-arima.veg <- forecast(veg, h=100)
+arima.veg <- forecast(vegwyciete, h=28)
+par(mfrow=c(1,2))
+plot(veg, main="Oryginalny szereg")
 plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
 
 
