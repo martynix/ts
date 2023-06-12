@@ -1,7 +1,7 @@
 Projekt z SZEREGÓW CZASOWYCH
 ================
 Martyna Pitera
-2023-06-12
+2023-06-13
 
 # Wprowadzenie
 
@@ -9,7 +9,7 @@ Celem projektu jest analiza dwóch szeregów czasowych.
 
 Analizowane szeregi czasowe dotyczą wielkości populacji ludzi w wieku
 powyżej 55 roku życia (włącznie) oraz cen warzyw w Polsce. Oba zbiory
-danych pochodzą ze strony <https://fred.stlouisfed.org/>.
+danych pochodzą ze strony <https://fred.stlouisfed.org/>.  
 (fred.stlouisfed.org - baza danych Rezerwy Federalnej)
 
 Analiza pierwszego zagadnienia ma na celu obserwację zmian zachodzących
@@ -234,13 +234,7 @@ wzrostowy. Średnia cen jest najwyższa w kwietniu.
 
 ``` r
 library(forecast)
-```
 
-    ## Registered S3 method overwritten by 'quantmod':
-    ##   method            from
-    ##   as.zoo.data.frame zoo
-
-``` r
 seasonplot(pop, 
            col = rainbow(75), 
            year.labels = TRUE, 
@@ -618,8 +612,9 @@ SB2 <- as.ts(SB2)
 tsdisplay(SB2, main="Szum biały dla n=50")
 ```
 
-![](README_files/figure-gfm/a21-1.png)<!-- --> Szereg możemy uznać za
-realizację białego szumu jeżeli:  
+![](README_files/figure-gfm/a21-1.png)<!-- -->
+
+Szereg możemy uznać za realizację białego szumu jeżeli:  
 i) co najmniej 95% autokorelacji próbkowych (ACF(h), h=1,2,.., hmax)
 znajduje się w przedziale ufności  
 ii) nie ma autokorelacji „istotnie ” wychodzących poza przedział
@@ -667,7 +662,7 @@ oraz MA(35), MA(23), MA(12).
 
 ## Dopasowanie modelu AR dla szeregu popdiff1:
 
-1.metoda Yule-Walkera
+1.  Metoda Yule-Walkera
 
 ``` r
 popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
@@ -692,7 +687,8 @@ popdiff1.yw
     ## 
     ## Order selected 36  sigma^2 estimated as  8280
 
-2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+2.  Metoda największej wiarygodności (MLE-Maksimum Likelihood
+    Estimation)
 
 ``` r
 popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=36, method=c("mle"))
@@ -717,7 +713,7 @@ popdiff1.mle
     ## 
     ## Order selected 36  sigma^2 estimated as  7902
 
-3.Automatyczny dobór: (aic=TRUE)
+3.  Automatyczny dobór: (aic=TRUE)
 
 ``` r
 popdiff1.aic <- ar(popdiff1, aic=TRUE)
@@ -740,7 +736,7 @@ popdiff1.aic
 
 ## Dopasowanie modelu AR dla szeregu vegdiff1:
 
-1.metoda Yule-Walkera
+1.  Metoda Yule-Walkera
 
 ``` r
 vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
@@ -765,7 +761,8 @@ vegdiff1.yw
     ## 
     ## Order selected 36  sigma^2 estimated as  18.09
 
-2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+2.  Metoda największej wiarygodności (MLE-Maksimum Likelihood
+    Estimation)
 
 ``` r
 vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("mle"))
@@ -790,7 +787,7 @@ vegdiff1.mle
     ## 
     ## Order selected 36  sigma^2 estimated as  13.26
 
-3.Automatyczny dobór: (aic=TRUE)
+3.  Automatyczny dobór: (aic=TRUE)
 
 ``` r
 vegdiff1.aic <- ar(vegdiff1, aic=TRUE)
@@ -1106,12 +1103,8 @@ plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 ![](README_files/figure-gfm/a34-1.png)<!-- -->
 
 ``` r
-popdiff1wyciete <- window(popdiff1, start = c(1948,1), end = c(2020,12))
-```
+popdiff1wyciete <- window(popdiff1, start = c(1949,2), end = c(2020,12))
 
-    ## Warning in window.default(x, ...): argument 'start' nie został zmieniony
-
-``` r
 pop.meanf1 <- meanf(popdiff1wyciete, h = 29)
 par(mfrow=c(2,1))
 plot(popdiff1, main="Oryginalny szereg stacjonarny")
@@ -1159,16 +1152,12 @@ plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezono
 ![](README_files/figure-gfm/a34-6.png)<!-- -->
 
 ``` r
-vegdiff1wyciete <- window(vegdiff1, start = c(1996,1), end = c(2020,12))
-```
+vegdiff1wyciete <- window(vegdiff1, start = c(1997,2), end = c(2020,12))
 
-    ## Warning in window.default(x, ...): argument 'start' nie został zmieniony
-
-``` r
 veg.meanf1 <- meanf(vegdiff1wyciete, h = 28)
 par(mfrow=c(2,1))
 plot(vegdiff1wyciete, main="Oryginalny szereg stacjonarny")
-plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)", ylim=c(40,200))
+plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)")
 ```
 
 ![](README_files/figure-gfm/a34-7.png)<!-- -->
@@ -1237,3 +1226,136 @@ plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
 ```
 
 ![](README_files/figure-gfm/a35%20pressure-4.png)<!-- -->
+
+## Ocena jakości przeprowadzonych prognoz
+
+Za pomocą funkcji accuracy() z pakietu forecast obliczyłam miary jakości
+prognoz.  
+Im bardziej wartości zbliżone do 0, tym lepsza jest prognoza.  
+W przypadku błędu średniokwadratowego (RMSE) i średniego błędu
+bezwzględnego (MAE), niższe wartości wskazują na lepsze dopasowanie
+prognoz. Można również uwzględnić błąd procentowy bezwzględny (MAPE),
+gdzie niższe wartości wskazują na mniejsze procentowe odchylenie
+prognoz.
+
+``` r
+accuracy(pop.meanf)
+```
+
+    ##                        ME     RMSE      MAE       MPE     MAPE     MASE
+    ## Training set 3.467059e-13 19462.45 15320.43 -15.27211 34.63657 14.82063
+    ##                   ACF1
+    ## Training set 0.9955175
+
+``` r
+accuracy(pop.meanf1)
+```
+
+    ##                        ME     RMSE      MAE  MPE MAPE      MASE        ACF1
+    ## Training set 2.924868e-16 110.4268 33.43246 -Inf  Inf 0.5677487 0.001068065
+
+``` r
+accuracy(pop.naive)
+```
+
+    ##                    ME     RMSE    MAE      MPE      MAPE       MASE      ACF1
+    ## Training set 84.87886 128.3249 88.584 0.163368 0.1702062 0.08569411 0.3072776
+
+``` r
+accuracy(pop.snaive)
+```
+
+    ##                    ME     RMSE      MAE      MPE     MAPE MASE      ACF1
+    ## Training set 1016.554 1231.746 1033.723 1.937321 1.971685    1 0.9869691
+
+``` r
+accuracy(pop.dryft)
+```
+
+    ##                         ME     RMSE      MAE         MPE      MAPE       MASE
+    ## Training set -1.613305e-12 96.24379 54.23525 -0.03062093 0.1088063 0.05246592
+    ##                   ACF1
+    ## Training set 0.3072776
+
+``` r
+accuracy(hw.pop)
+```
+
+    ##                   ME     RMSE      MAE         MPE       MAPE       MASE
+    ## Training set 2.24168 80.66612 26.56037 0.003828993 0.05276482 0.02569388
+    ##                       ACF1
+    ## Training set -0.0007912466
+
+``` r
+accuracy(arima.pop)
+```
+
+    ##                    ME     RMSE      MAE         MPE       MAPE       MASE
+    ## Training set 2.505792 81.54922 26.83923 0.004337518 0.05207203 0.02596365
+    ##                      ACF1
+    ## Training set 0.0006091052
+
+Na podstawie przedstawionych wyników wydaje się, że najlepsza prognoza
+dla szeregu pop to ta z wykorzystaniem metody naiwnej z dryftem.
+
+``` r
+accuracy(veg.meanf)
+```
+
+    ##                        ME     RMSE      MAE       MPE     MAPE     MASE
+    ## Training set 2.150317e-15 20.62089 16.79017 -5.504834 19.85297 1.956611
+    ##                  ACF1
+    ## Training set 0.926086
+
+``` r
+accuracy(veg.meanf1)
+```
+
+    ##                         ME     RMSE      MAE MPE MAPE      MASE       ACF1
+    ## Training set -4.442207e-17 4.757295 3.437929 Inf  Inf 0.5781036 0.09869153
+
+``` r
+accuracy(veg.naive)
+```
+
+    ##                     ME     RMSE      MAE        MPE     MAPE      MASE
+    ## Training set 0.2351171 7.402655 5.651171 -0.1856306 7.007487 0.6585486
+    ##                   ACF1
+    ## Training set 0.4198566
+
+``` r
+accuracy(veg.snaive)
+```
+
+    ##                    ME     RMSE     MAE     MPE     MAPE MASE      ACF1
+    ## Training set 2.508333 10.68505 8.58125 1.96687 9.219082    1 0.8929986
+
+``` r
+accuracy(veg.dryft)
+```
+
+    ##                        ME    RMSE      MAE        MPE     MAPE      MASE
+    ## Training set 3.897144e-15 7.39892 5.574027 -0.4564918 6.922158 0.6495589
+    ##                   ACF1
+    ## Training set 0.4198566
+
+``` r
+accuracy(hw.veg)
+```
+
+    ##                     ME     RMSE      MAE        MPE     MAPE      MASE
+    ## Training set 0.1637781 4.018103 2.843141 0.02539571 3.312927 0.3313201
+    ##                    ACF1
+    ## Training set 0.09031392
+
+``` r
+accuracy(arima.veg)
+```
+
+    ##                    ME     RMSE      MAE        MPE     MAPE      MASE
+    ## Training set 0.188679 3.997686 2.828672 0.06825739 3.291169 0.3296341
+    ##                    ACF1
+    ## Training set 0.09183656
+
+Dla szeregu veg najlepsze wyniki dały metody naiwna z dryftem,
+Holt-Wintersa oraz ARIMA.

@@ -2,8 +2,8 @@
 title: "Projekt z SZEREGÓW CZASOWYCH"
 author: "Martyna Pitera"
 date: "`r Sys.Date()`"
-#output: html_document
-output: github_document
+output: html_document
+#output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Celem projektu jest analiza dwóch szeregów czasowych.
 
-Analizowane szeregi czasowe dotyczą wielkości populacji ludzi w wieku powyżej 55 roku życia (włącznie) oraz cen warzyw w Polsce. Oba zbiory danych pochodzą ze strony https://fred.stlouisfed.org/. (fred.stlouisfed.org - baza danych Rezerwy Federalnej) 
+Analizowane szeregi czasowe dotyczą wielkości populacji ludzi w wieku powyżej 55 roku życia (włącznie) oraz cen warzyw w Polsce. Oba zbiory danych pochodzą ze strony https://fred.stlouisfed.org/. \
+(fred.stlouisfed.org - baza danych Rezerwy Federalnej) 
 
 Analiza pierwszego zagadnienia ma na celu obserwację zmian zachodzących w społeczeństwie na całym świecie. Przewidywanie takich procesów jak starzenie się (lub odmładzanie) społeczeństwa wpływa np. na decyzje polityczne w sprawach polityki prorodzinnej czy prodemograficznej. Dane dotyczące populacji pochodzą z okresu od stycznia 1948 do maja 2023.
 
@@ -79,7 +80,7 @@ Powyższa funkcja pochodzi z pakietu stats i przedstawia podzbiory danych dla ka
 Wykres monthplot dla szeregu czasowego dotyczącego populacji ukazuje trend wzrostowy w każdym miesiącu. 
 Z kolei wykres szeregu dla danych dotyczących cen warzyw przedstawia zarówno sezonowość, jak i trend wzrostowy. Średnia cen jest najwyższa w kwietniu.
 
-```{r a4, warning=FALSE}
+```{r a4, warning=FALSE, message=FALSE}
 library(forecast)
 
 seasonplot(pop, 
@@ -315,9 +316,11 @@ SB2 <- rnorm(n=50)
 SB2 <- as.ts(SB2)
 tsdisplay(SB2, main="Szum biały dla n=50")
 ```
+
 Szereg możemy uznać za realizację białego szumu jeżeli:\
   i)  co najmniej 95% autokorelacji próbkowych (ACF(h), h=1,2,.., hmax) znajduje się w przedziale       ufności \
   ii) nie ma autokorelacji „istotnie ” wychodzących poza przedział ufności \
+
 
 ```{r a22}
 tsdisplay(SB2)
@@ -340,21 +343,21 @@ Dla szeregu vegdiff1 warto brać pod uwagę modele AR(36), AR(24) i AR(12) oraz 
 # Metody estymacji
 ## Dopasowanie modelu AR dla szeregu popdiff1:
 
-1.metoda Yule-Walkera 
+1. Metoda Yule-Walkera 
 
 ```{r a24}
 popdiff1.yw <- ar(popdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
 popdiff1.yw
 ```
 
-2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+2. Metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
 
 ```{r a25}
 popdiff1.mle <- ar(popdiff1, aic=FALSE, order.max=36, method=c("mle"))
 popdiff1.mle
 ```
 
-3.Automatyczny dobór: (aic=TRUE)
+3. Automatyczny dobór: (aic=TRUE)
 
 ```{r a26}
 popdiff1.aic <- ar(popdiff1, aic=TRUE)
@@ -362,7 +365,7 @@ popdiff1.aic
 ```
 
 ## Dopasowanie modelu AR dla szeregu vegdiff1:
-1.metoda Yule-Walkera 
+1. Metoda Yule-Walkera 
 
 ```{r a27}
 vegdiff1.yw <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("yule-walker"))
@@ -370,14 +373,14 @@ vegdiff1.yw
 
 ```
 
-2.metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
+2. Metoda największej wiarygodności (MLE-Maksimum Likelihood Estimation)
 
 ```{r a28}
 vegdiff1.mle <- ar(vegdiff1, aic=FALSE, order.max=36, method=c("mle"))
 vegdiff1.mle
 ```
 
-3.Automatyczny dobór: (aic=TRUE)
+3. Automatyczny dobór: (aic=TRUE)
 
 ```{r a29}
 vegdiff1.aic <- ar(vegdiff1, aic=TRUE)
@@ -454,7 +457,7 @@ par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 
-popdiff1wyciete <- window(popdiff1, start = c(1948,1), end = c(2020,12))
+popdiff1wyciete <- window(popdiff1, start = c(1949,2), end = c(2020,12))
 
 pop.meanf1 <- meanf(popdiff1wyciete, h = 29)
 par(mfrow=c(2,1))
@@ -485,12 +488,12 @@ par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
 plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)", ylim=c(40,200))
 
-vegdiff1wyciete <- window(vegdiff1, start = c(1996,1), end = c(2020,12))
+vegdiff1wyciete <- window(vegdiff1, start = c(1997,2), end = c(2020,12))
 
 veg.meanf1 <- meanf(vegdiff1wyciete, h = 28)
 par(mfrow=c(2,1))
 plot(vegdiff1wyciete, main="Oryginalny szereg stacjonarny")
-plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)", ylim=c(40,200))
+plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)")
 
 veg.naive <- naive(vegwyciete, h=28)
 par(mfrow=c(2,1))
@@ -533,4 +536,32 @@ plot(veg, main="Oryginalny szereg")
 plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
 ```
 
+## Ocena jakości przeprowadzonych prognoz
+Za pomocą funkcji accuracy() z pakietu forecast obliczyłam miary jakości prognoz.\
+Im bardziej wartości zbliżone do 0, tym lepsza jest prognoza.\
+W przypadku błędu średniokwadratowego (RMSE) i średniego błędu bezwzględnego (MAE), niższe wartości wskazują na lepsze dopasowanie prognoz. Można również uwzględnić błąd procentowy bezwzględny (MAPE), gdzie niższe wartości wskazują na mniejsze procentowe odchylenie prognoz.
 
+```{r a36}
+accuracy(pop.meanf)
+accuracy(pop.meanf1)
+accuracy(pop.naive)
+accuracy(pop.snaive)
+accuracy(pop.dryft)
+accuracy(hw.pop)
+accuracy(arima.pop)
+```
+
+Na podstawie przedstawionych wyników wydaje się, że najlepsza prognoza dla szeregu pop to ta z wykorzystaniem metody naiwnej z dryftem.
+
+
+```{r a37}
+accuracy(veg.meanf)
+accuracy(veg.meanf1)
+accuracy(veg.naive)
+accuracy(veg.snaive)
+accuracy(veg.dryft)
+accuracy(hw.veg)
+accuracy(arima.veg)
+```
+
+Dla szeregu veg najlepsze wyniki dały metody naiwna z dryftem, Holt-Wintersa oraz ARIMA. 

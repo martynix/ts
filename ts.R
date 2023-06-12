@@ -304,6 +304,7 @@ par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.meanf, main="Prognoza na podstawie średniej (szereg z trendem)")
 
+popdiff1wyciete <- window(popdiff1, start = c(1949,2), end = c(2020,12))
 pop.meanf1 <- meanf(popdiff1wyciete, h = 29)
 par(mfrow=c(2,1))
 plot(popdiff1, main="Oryginalny szereg stacjonarny")
@@ -313,9 +314,6 @@ pop.naive <- naive(popwyciete, h=29)
 par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.naive, main="Metoda naiwna (szereg z trendem)")
-
-#popwyciete.naive <- naive(popwyciete, h=96)
-#plot(popwyciete.naive)
 
 pop.snaive <- snaive(popwyciete, h=29)
 par(mfrow=c(2,1))
@@ -327,20 +325,19 @@ par(mfrow=c(2,1))
 plot(pop, main="Oryginalny szereg")
 plot(pop.dryft, main="Metoda naiwna z dryftem")
 
-
 vegwyciete <- window(veg, start = c(1996,1), end = c(2020,12))
 
 veg.meanf <- meanf(vegwyciete, h = 28)
 par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
-plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością)", ylim=c(40,200))
+plot(veg.meanf, main="Prognoza na podstawie średniej (szereg z trendem i sez.)", ylim=c(40,200))
 
-vegdiff1wyciete <- window(vegdiff1, start = c(1996,1), end = c(2020,12))
+vegdiff1wyciete <- window(vegdiff1, start = c(1997,2), end = c(2020,12))
 
 veg.meanf1 <- meanf(vegdiff1wyciete, h = 28)
 par(mfrow=c(2,1))
 plot(vegdiff1wyciete, main="Oryginalny szereg stacjonarny")
-plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sezonowością - stacjonarny)", ylim=c(40,200))
+plot(veg.meanf1, main="Prognoza na podstawie średniej (szereg z trendem i sez. - stacjonarny)")
 
 veg.naive <- naive(vegwyciete, h=28)
 par(mfrow=c(2,1))
@@ -377,4 +374,21 @@ arima.veg <- forecast(vegwyciete, h=28)
 par(mfrow=c(2,1))
 plot(veg, main="Oryginalny szereg")
 plot(arima.veg, main="Prognozowanie za pomocą modelu ARIMA")
+
+
+accuracy(pop.meanf)
+accuracy(pop.meanf1)
+accuracy(pop.naive)
+accuracy(pop.snaive)
+accuracy(pop.dryft)
+accuracy(hw.pop)
+accuracy(arima.pop)
+
+accuracy(veg.meanf)
+accuracy(veg.meanf1)
+accuracy(veg.naive)
+accuracy(veg.snaive)
+accuracy(veg.dryft)
+accuracy(hw.veg)
+accuracy(arima.veg)
 
