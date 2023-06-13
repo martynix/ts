@@ -469,9 +469,13 @@ lines(fitted(veg_poly2), col = "red", lty = 2)
 ![](README_files/figure-gfm/a45-1.png)<!-- -->
 
 Niebieska linia na wykresie wskazuje na trend wzrostowy. Czerwona linia
-świadczy zać o występowaniu sezonowości.
+świadczy zaś o występowaniu sezonowości.
 
 # Eliminacja trendu i sezonowości
+
+Przedstawione poniżej metody pochodzą z wykładu. Zamieściłam je w celach
+demonstracyjnych, jednak w dalszej części (uczynienie szeregu
+stacjonarnym) wykorzystam różnicowanie.
 
 ## Na szeregach powstałych po dekompozycji addytywnej
 
@@ -507,6 +511,27 @@ tsdisplay(dveg.reszty, main="reszty losowe")
 
 ![](README_files/figure-gfm/a47-4.png)<!-- -->
 
+Indeksy sezonowe są wartościami numerycznymi, które reprezentują wpływ
+sezonowości w szeregu czasowym. W dekompozycji multiplikatywnej szeregu
+czasowego, dane są rozkładane na trzy główne składowe: trend, sezonowość
+i reszty.  
+
+Składowa sezonowości opisuje regularne wzorce, powtarzające się w
+określonym cyklu czasowym, na przykład w ciągu roku. Indeksy sezonowe są
+wykorzystywane do przedstawienia tych wzorców sezonowych. Są one
+zazwyczaj wyrażane jako wartości względne, w odniesieniu do poziomu
+bazowego.
+
+Na wykresie barplot() dla szeregu pierwszego widzimy, że największy
+wzrost w populacji jest obserwowany w lutym, a spadek w lipcu.
+
+Z kolei wykres dla drugiego szeregu ukazuje największy wzrost cen warzyw
+w kwietniu, a największy spadek cen w sierpniu.
+
+Reszty losowe to pozostała część szeregu, która nie została wyjaśniona
+przez składowe trendu i sezonowości. Można ją traktować jako losowe
+fluktuacje, które nie podlegają ani trendowi, ani wzorcom sezonowym.
+
 ## Odsezonowanie szeregu veg
 
 ``` r
@@ -517,6 +542,9 @@ lines(dveg2, col="orange", lty=1)
 ```
 
 ![](README_files/figure-gfm/a16-1.png)<!-- -->
+
+Żółta linia ukazuje odsezonowany szereg czasowy, jednak nadal
+charakteryzuje się on widocznym trendem.
 
 # Uczynienie szeregów stacjonarnymi
 
@@ -812,6 +840,9 @@ przed dwie pozostałe metody.
 
 # Wyznaczenie współczynników dla modelu MA(q)
 
+Przeprowadziłam operacje dla kilku parametrów q, ustalonych wcześniej na
+podstawie wykresów ACF.
+
 ``` r
 popdiff1_arima36 <- arima(popdiff1, order=c(0,0,36))
 summary(popdiff1_arima36)
@@ -892,6 +923,9 @@ summary(popdiff1_arima12)
     ## Training set error measures:
     ##                       ME     RMSE     MAE MPE MAPE      MASE        ACF1
     ## Training set -0.02731722 87.10712 30.0807 NaN  Inf 0.5593403 -0.02139915
+
+W przypadku podanych modeli dla szeregu popdiff1, wartości AIC sugerują,
+że model MA(12) ma najniższe AIC i jest preferowany.
 
 ``` r
 vegdiff1_arima35 <- arima(vegdiff1, order=c(0,0,35))
@@ -974,6 +1008,9 @@ summary(vegdiff1_arima12)
     ##                      ME    RMSE      MAE  MPE MAPE      MASE       ACF1
     ## Training set -0.1270153 3.76517 2.724486 -Inf  Inf 0.5977839 0.03262558
 
+W przypadku podanych modeli dla szeregu vegdiff1, wartości AIC sugerują,
+że model MA(12) ma najniższe AIC i jest preferowany.
+
 # Wyznaczenie optymalnych modeli z wykorzystaniem funkcji auto.arima()
 
 Dla szeregu popdiff1:
@@ -1025,6 +1062,11 @@ popdiff1_auto_arimaBIC
     ## 
     ## sigma^2 = 7951:  log likelihood = -5275.01
     ## AIC=10554.01   AICc=10554.03   BIC=10563.6
+
+Niższe wartości AIC, AICC i BIC wskazują na lepsze dopasowanie modelu.
+
+Model ARIMA(0,0,0)(0,0,1) ma wyższe wartości AIC i AICc, ale niższą
+wartość BIC od modelu ARIMA(0,0,1)(0,0,1).
 
 Najlepszym modelem jest ARIMA(0,0,1)(0,0,1) wyznaczona z identycznymi
 współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i
@@ -1080,9 +1122,13 @@ vegdiff1_auto_arimaBIC
     ## sigma^2 = 15.21:  log likelihood = -879.26
     ## AIC=1764.51   AICc=1764.59   BIC=1775.77
 
-Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi
-współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i
-aicc.
+Niższe wartości AIC, AICC i BIC wskazują na lepsze dopasowanie modelu.
+
+Model ARIMA(0,0,0)(1,0,1), wyznaczony przez kryterium BIC ma niższe
+wartości AIC, AICc oraz BIC od modelu ARIMA(2,0,2)(1,0,1) wyznaczonego
+przez dwa pozostałe kryteria.
+
+Najlepszym modelem jest zatem ARIMA(0,0,0)(1,0,1).
 
 # Prognozowanie z wykorzystaniem metod naiwnych
 

@@ -2,8 +2,8 @@
 title: "Projekt z SZEREGÓW CZASOWYCH"
 author: "Martyna Pitera"
 date: "`r Sys.Date()`"
-output: html_document
-#output: github_document
+#output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -240,9 +240,11 @@ lines(fitted(veg_poly2), col = "red", lty = 2)
 ```
 
 Niebieska linia na wykresie wskazuje na trend wzrostowy. 
-Czerwona linia świadczy zać o występowaniu sezonowości.
+Czerwona linia świadczy zaś o występowaniu sezonowości.
 
 # Eliminacja trendu i sezonowości
+
+Przedstawione poniżej metody pochodzą z wykładu. Zamieściłam je w celach demonstracyjnych, jednak w dalszej części (uczynienie szeregu stacjonarnym) wykorzystam różnicowanie. 
 
 ## Na szeregach powstałych po dekompozycji addytywnej
 
@@ -262,6 +264,16 @@ barplot(dveg.indeksy, names.arg = month.abb, main="Indeksy sezonowe")
 tsdisplay(dveg.reszty, main="reszty losowe")
 ```
 
+Indeksy sezonowe są wartościami numerycznymi, które reprezentują wpływ sezonowości w szeregu czasowym. W dekompozycji multiplikatywnej szeregu czasowego, dane są rozkładane na trzy główne składowe: trend, sezonowość i reszty.\
+
+Składowa sezonowości opisuje regularne wzorce, powtarzające się w określonym cyklu czasowym, na przykład w ciągu roku. Indeksy sezonowe są wykorzystywane do przedstawienia tych wzorców sezonowych. Są one zazwyczaj wyrażane jako wartości względne, w odniesieniu do poziomu bazowego.
+
+Na wykresie barplot() dla szeregu pierwszego widzimy, że największy wzrost w populacji jest obserwowany w lutym, a spadek w lipcu. 
+
+Z kolei wykres dla drugiego szeregu ukazuje największy wzrost cen warzyw w kwietniu, a największy spadek cen w sierpniu.
+
+Reszty losowe to pozostała część szeregu, która nie została wyjaśniona przez składowe trendu i sezonowości. Można ją traktować jako losowe fluktuacje, które nie podlegają ani trendowi, ani wzorcom sezonowym.
+
 ## Odsezonowanie szeregu veg
 
 ```{r a16}
@@ -270,6 +282,8 @@ dveg2 <- seasadj(dveg1)
 plot(veg)
 lines(dveg2, col="orange", lty=1)
 ```
+
+Żółta linia ukazuje odsezonowany szereg czasowy, jednak nadal charakteryzuje się on widocznym trendem. 
 
 # Uczynienie szeregów stacjonarnymi
 
@@ -391,6 +405,8 @@ Automatyczny dobór jest zbliżony do metody Yule-Walkera. Automatyczny dobór w
 
 # Wyznaczenie współczynników dla modelu MA(q)
 
+Przeprowadziłam operacje dla kilku parametrów q, ustalonych wcześniej na podstawie wykresów ACF.
+
 ```{r a30}
 popdiff1_arima36 <- arima(popdiff1, order=c(0,0,36))
 summary(popdiff1_arima36)
@@ -401,6 +417,8 @@ summary(popdiff1_arima24)
 popdiff1_arima12 <- arima(popdiff1, order=c(0,0,12))
 summary(popdiff1_arima12)
 ```
+
+W przypadku podanych modeli dla szeregu popdiff1, wartości AIC sugerują, że model MA(12) ma najniższe AIC i jest preferowany.
 
 ```{r a31}
 vegdiff1_arima35 <- arima(vegdiff1, order=c(0,0,35))
@@ -413,8 +431,11 @@ vegdiff1_arima12 <- arima(vegdiff1, order=c(0,0,12))
 summary(vegdiff1_arima12)
 ```
 
+W przypadku podanych modeli dla szeregu vegdiff1, wartości AIC sugerują, że model MA(12) ma najniższe AIC i jest preferowany.
+
 # Wyznaczenie optymalnych modeli z wykorzystaniem funkcji auto.arima()
 Dla szeregu popdiff1:
+
 
 ```{r a32}
 popdiff1_auto_arimaAIC <- auto.arima(popdiff1,ic="aic")
@@ -426,6 +447,10 @@ popdiff1_auto_arimaAICC
 popdiff1_auto_arimaBIC <- auto.arima(popdiff1,ic="bic")
 popdiff1_auto_arimaBIC
 ```
+
+Niższe wartości AIC, AICC i BIC wskazują na lepsze dopasowanie modelu.
+
+Model ARIMA(0,0,0)(0,0,1) ma wyższe wartości AIC i AICc, ale niższą wartość BIC od modelu ARIMA(0,0,1)(0,0,1).
 
 Najlepszym modelem jest ARIMA(0,0,1)(0,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
 
@@ -443,7 +468,11 @@ vegdiff1_auto_arimaBIC <- auto.arima(vegdiff1,ic="bic")
 vegdiff1_auto_arimaBIC
 ```
 
-Najlepszym modelem jest ARIMA(2,0,2)(1,0,1) wyznaczona z identycznymi współczynnikami przez dwa pierwsza kryteria dobroci dopasowania - aic i aicc.
+Niższe wartości AIC, AICC i BIC wskazują na lepsze dopasowanie modelu.
+
+Model ARIMA(0,0,0)(1,0,1), wyznaczony przez kryterium BIC ma niższe wartości AIC, AICc oraz BIC od modelu ARIMA(2,0,2)(1,0,1) wyznaczonego przez dwa pozostałe kryteria.
+
+Najlepszym modelem jest zatem ARIMA(0,0,0)(1,0,1).
 
 # Prognozowanie z wykorzystaniem metod naiwnych
 Oba szeregi zostały obcięte tak, by obejmowały okres czasu do końca 2020 roku. Na tak obciętych szeregach przeprowadziłam prognozowanie na okres od 2021 roku do ostatniego miesiąca, który obejmował szereg przed obcięciem. Zestawiłam wykres prognozowany z tym, który już znamy. 
